@@ -97,88 +97,134 @@ typedef struct {
 	
 } Empleado;
 
-int existe_archivo(Empleado empleado, FILE* empleadosFile);
-int agregar_emplado(Empleado empleado, FILE* empleadosFile);
-int leer_archivo(Empleado empleado);
+int existe_archivo(Empleado empleado);
+int agregar_emplado(Empleado empleado);
+int leer_archivo();
+int buscar_empleado_ID(int idEmpleado);
 
-int existe_archivo(Empleado empleado, FILE* empleadosFile){
-	
-	
-	if(empleadosFile != NULL){
-		empleadosFile = fopen("empleados.dat","r+b");
-		agregar_emplado(empleado, empleadosFile);
-		return 1;
-	}else{
-		empleadosFile = fopen("empleados.dat", "w+b");
-		printf("empleadosFile creado con exito \n");
-	}
-	return 0;
+int existe_archivo(Empleado empleado){
+    FILE* empleadosFile = fopen("empleados.dat", "rb");
+
+    if(empleadosFile != NULL){
+        fclose(empleadosFile);
+        agregar_emplado(empleado);  
+        return 1;
+    } else {
+        empleadosFile = fopen("empleados.dat", "wb");
+		
+        if (empleadosFile != NULL) {
+            fclose(empleadosFile);
+            printf("empleadosFile creado con exito \n");
+            agregar_emplado(empleado); 
+			
+        } else {
+            printf("Error creando empleados.dat\n");
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
-int agregar_emplado(Empleado empleado, FILE* empleadosFile){
+
+int agregar_emplado(Empleado empleado){
+	
+	FILE* empleadosFile = fopen("empleados.dat", "r+b") ;
+	fseek(empleadosFile, 0, SEEK_END);
 	
 	fwrite(&empleado, sizeof(Empleado), 1, empleadosFile); 
+	fclose(empleadosFile);
 	printf("Empleado anadido con exito\n");
-	fclose(empleadosFile);
 	return 0;
 }
 
-int leer_archivo(Empleado empleado){
-	
-	FILE* empleadosFile = fopen("empleados.dat","rb");
+int leer_archivo() {
+    Empleado empleado;  
+    FILE* empleadosFile = fopen("empleados.dat", "rb");
 
-	if(empleadosFile == NULL){
-		printf("Error al abrir el archivo empleados.dat");
-		return 1;
-	}
-	
-	while(fread(&empleado, sizeof(Empleado), 1, empleadosFile) == 1){
-		printf("---------------------------------------\n");
-		printf("Id del usuario: %d\n", empleado.id);
-		printf("Nombre del usuario: %s\n", empleado.nombre);
-		printf("Salario del usuario: %d\n", empleado.salario);
-		printf("---------------------------------------\n");
-	}
-	
-	fclose(empleadosFile);
+    if (empleadosFile == NULL) {
+        printf("Error al abrir el archivo empleados.dat\n");
+        return 1;
+    }
+
+    int encontrados = 0;
+
+    while (fread(&empleado, sizeof(Empleado), 1, empleadosFile) == 1) {
+        if (empleado.activo == 1) {
+            printf("---------------------------------------\n");
+            printf("Id del usuario: %d\n", empleado.id);
+            printf("Nombre del usuario: %s\n", empleado.nombre);
+            printf("Salario del usuario: %d\n", empleado.salario);
+            printf("---------------------------------------\n");
+            encontrados++;
+        }
+    }
+
+    if (encontrados == 0) {
+        printf("No hay empleados activos.\n");
+    }
+
+    fclose(empleadosFile);
+    return 0;
+}
+
+int buscar_empleado_ID(int idEmpleado){
 	return 0;
 }
+
 
 int main(int argc, char* argv[]){
 	
 	FILE* empleadosFile;
 	Empleado empleado;
 	int respuestaUsuario;
+	int respuestaUsuarioInsercion;
+	int idEmpleado;
 	
 	printf("Bienvenido a la BBDD de empleados, seleccione una de estas opciones: \n");
-	printf("----------------------------------------------------------------------- \n");
-	printf("1. Agregar empleado \n");
-	printf("2. Listar empleados activos \n");
-	printf("3. Buscar empleado por ID \n");
-	printf("4. Modificar salario \n");
-	printf("5. Dar de baja por ID \n");
-	printf("6. Salir \n");
-	printf("----------------------------------------------------------------------- \n");
 	
-	scanf("%d", &respuestaUsuario);
-	
-	switch(respuestaUsuario){
+	while(1){
+		
+		printf("----------------------------------------------------------------------- \n");
+		printf("1. Agregar empleado \n");
+		printf("2. Listar empleados activos \n");
+		printf("3. Buscar empleado por ID \n");
+		printf("4. Modificar salario \n");
+		printf("5. Dar de baja por ID \n");
+		printf("6. Salir \n");
+		printf("----------------------------------------------------------------------- \n");
+		
+		scanf("%d", &respuestaUsuario);
+		
+		switch(respuestaUsuario){
 		
 		case 1 :
-		
+			
 			printf("Introduza por favor, los datos del usuario: (ID, nombre, salario) \n");
 			scanf("%d %s %d", &empleado.id, &empleado.nombre, &empleado.salario);
 			empleado.activo = 1;
-			existe_archivo(empleado, empleadosFile);
+			existe_archivo(empleado);
 			break;
 			
 		case 2 :
 		
 			printf("Estos son los usuarios activos en la bbdd: \n");
-			leer_archivo(empleado);
+			leer_archivo();
 			break;
 		
 		case 3 :
+				
+			/*
+			3. Buscar empleado por ID
+				Permite ingresar un ID y muestra la información del empleado si existe y está activo. 
+				Si no se encuentra o está dado de baja, se debe notificar al usuario.
+			
+			*/
+			
+			printf("Ingrese el ID numerico del empleado que quieres buscar: \n");
+			scanf("%d", &idEmpleado); 
+			buscar_empleado_ID(idEmpleado);
+
 		
 			printf("Opcion 3 seleccionada \n");
 			break;
@@ -196,12 +242,16 @@ int main(int argc, char* argv[]){
 		case 6 :
 		
 			printf("Opcion 6 seleccionada \n");
-			break;
+			return 0;
 			
 		default:
 		
 			printf("Opcion no valida \n");
 	}
+		
+	}
+	
+	
 
 	return 0;
 }
