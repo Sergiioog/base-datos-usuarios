@@ -169,6 +169,20 @@ int leer_archivo() {
 }
 
 int buscar_empleado_ID(int idEmpleado){
+	
+	Empleado empleado;
+	FILE *empleadosFile = fopen("empleados.dat", "rb");
+	
+	if(empleadosFile == NULL){
+		printf("Error al leer el archivo \n");
+		return 1;
+	}
+	
+	/*while(fread(){
+		
+	}*/
+	
+	
 	return 0;
 }
 
