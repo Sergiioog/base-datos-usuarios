@@ -172,16 +172,30 @@ int buscar_empleado_ID(int idEmpleado){
 	
 	Empleado empleado;
 	FILE *empleadosFile = fopen("empleados.dat", "rb");
+	int usuarioEncontrado = 0;
 	
 	if(empleadosFile == NULL){
 		printf("Error al leer el archivo \n");
 		return 1;
 	}
 	
-	/*while(fread(){
+	while(fread(&empleado, sizeof(Empleado), 1, empleadosFile) == 1){
 		
-	}*/
+		if((empleado.activo == 1) && (empleado.id == idEmpleado)){
+			printf("El usuario ha sido encontrado con exito \n");
+			printf("---------------------------------------\n");
+            printf("Id del usuario: %d\n", empleado.id);
+            printf("Nombre del usuario: %s\n", empleado.nombre);
+            printf("Salario del usuario: %d\n", empleado.salario);
+            printf("---------------------------------------\n");
+			usuarioEncontrado = 1;
+			break;
+		}
+	}
 	
+	if(usuarioEncontrado == 0){
+		printf("Lo sentimos, el usuario no se encuentra o ha sido dado de baja \n");
+	}
 	
 	return 0;
 }
@@ -240,7 +254,6 @@ int main(int argc, char* argv[]){
 			buscar_empleado_ID(idEmpleado);
 
 		
-			printf("Opcion 3 seleccionada \n");
 			break;
 			
 		case 4 :
