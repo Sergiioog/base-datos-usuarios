@@ -259,12 +259,40 @@ int modificar_salario(int idEmpleado){
 
 int modificar_activo(int idEmpleado){
 	
+	Empleado empleado;
+	int usuarioEncontrado = 0;
 	FILE *fileEmpleados = fopen("empleados.dat", "r+b");
 	
 	if(fileEmpleados == NULL){
 		printf("Lo sentimos, el fichero esta vacio\n");
 	}
 	
+	while(fread(&empleado, sizeof(Empleado), 1, fileEmpleados)){
+		
+		if(empleado.id == idEmpleado){
+
+			printf("El usuario ha sido encontrado con exito \n");
+			printf("---------------------------------------\n");
+            printf("Id del usuario: %d\n", empleado.id);
+            printf("Nombre del usuario: %s\n", empleado.nombre);
+            printf("Salario del usuario: %d\n", empleado.salario);
+			printf("Actividad: %d\n", empleado.activo);
+            printf("---------------------------------------\n");	
+			usuarioEncontrado = 1;
+		
+		}
+	}
+	
+	if(usuarioEncontrado == 1){
+		
+		empleado.activo = 0;
+		fseek(fileEmpleados, -sizeof(Empleado), SEEK_CUR);
+		fwrite(&empleado, sizeof(Empleado), 1, fileEmpleados);
+		fflush(fileEmpleados);
+		printf("Usuario dado de baja con exito!\n");
+		usuarioEncontrado = 0;
+		
+	}
 	fclose(fileEmpleados);
 	return 0;
 }
@@ -332,7 +360,7 @@ int main(int argc, char* argv[]){
 			
 		case 6 :
 			
-			printf("Ingrese el ID numerico del empleado que quieres dar de baja el salario: \n");
+			printf("Gracias por participar! \n");
 			return 0;
 			
 		default:
