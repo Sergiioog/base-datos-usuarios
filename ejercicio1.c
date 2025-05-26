@@ -101,6 +101,8 @@ int existe_archivo(Empleado empleado);
 int agregar_emplado(Empleado empleado);
 int leer_archivo();
 int buscar_empleado_ID(int idEmpleado);
+int modificar_salario(int idEmpleado);
+int modificar_activo(int idEmpleado);
 
 int existe_archivo(Empleado empleado){
     FILE* empleadosFile = fopen("empleados.dat", "rb");
@@ -125,7 +127,6 @@ int existe_archivo(Empleado empleado){
 
     return 0;
 }
-
 
 int agregar_emplado(Empleado empleado){
 	
@@ -193,6 +194,8 @@ int buscar_empleado_ID(int idEmpleado){
 		}
 	}
 	
+	fclose(empleadosFile);
+	
 	if(usuarioEncontrado == 0){
 		printf("Lo sentimos, el usuario no se encuentra o ha sido dado de baja \n");
 	}
@@ -200,6 +203,71 @@ int buscar_empleado_ID(int idEmpleado){
 	return 0;
 }
 
+int modificar_salario(int idEmpleado){
+	
+	Empleado empleado;
+	int respuestaUsuario;
+	int usuarioEncontrado = 0;
+	int nuevaCantidad;
+	FILE *fileEmpleados = fopen("empleados.dat", "r+b");
+	
+	if(fileEmpleados == NULL) {
+		printf("Lo sentimos, el archivo esta vacio \n");
+	}
+	
+	while(fread(&empleado, sizeof(Empleado), 1, fileEmpleados) == 1){
+		
+		if((empleado.activo == 1) && (empleado.id == idEmpleado)){
+			printf("El usuario ha sido encontrado con exito \n");
+			printf("---------------------------------------\n");
+            printf("Id del usuario: %d\n", empleado.id);
+            printf("Nombre del usuario: %s\n", empleado.nombre);
+            printf("Salario del usuario: %d\n", empleado.salario);
+            printf("---------------------------------------\n");
+			
+			usuarioEncontrado = 1;
+		}
+	}	
+
+	if(usuarioEncontrado == 1){
+		printf("Usuario encontrado, desea cambiar su salario? (1: si, 0: no)\n");
+		scanf("%d", &respuestaUsuario);
+		
+		if(respuestaUsuario == 1){
+			printf("Introduzca la nueva cantidad a anadir: \n");
+			scanf("%d", &nuevaCantidad);
+			
+			empleado.salario = nuevaCantidad;
+			fseek(fileEmpleados, -sizeof(Empleado), SEEK_CUR);
+			fwrite(&empleado, sizeof(Empleado), 1, fileEmpleados);
+			fflush(fileEmpleados); 	
+
+			printf("Salario del usuario %d cambiado con exito!\n", idEmpleado);
+			usuarioEncontrado != usuarioEncontrado;
+			
+		}else{
+			printf("Entendido! Gracias por participar\n");
+		}
+	
+	}else{
+		printf("Lo sentimos, no encontramos a ningun usuario con ese id\n");
+	}
+	
+	fclose(fileEmpleados);
+	return 0;
+}
+
+int modificar_activo(int idEmpleado){
+	
+	FILE *fileEmpleados = fopen("empleados.dat", "r+b");
+	
+	if(fileEmpleados == NULL){
+		printf("Lo sentimos, el fichero esta vacio\n");
+	}
+	
+	fclose(fileEmpleados);
+	return 0;
+}
 
 int main(int argc, char* argv[]){
 	
@@ -241,34 +309,30 @@ int main(int argc, char* argv[]){
 			break;
 		
 		case 3 :
-				
-			/*
-			3. Buscar empleado por ID
-				Permite ingresar un ID y muestra la información del empleado si existe y está activo. 
-				Si no se encuentra o está dado de baja, se debe notificar al usuario.
-			
-			*/
-			
+					
 			printf("Ingrese el ID numerico del empleado que quieres buscar: \n");
 			scanf("%d", &idEmpleado); 
 			buscar_empleado_ID(idEmpleado);
-
 		
 			break;
 			
-		case 4 :
+		case 4 :	
 		
-			printf("Opcion 4 seleccionada \n");
+			printf("Ingrese el ID numerico del empleado que quieres modificar el salario: \n");
+			scanf("%d", &idEmpleado);
+			modificar_salario(idEmpleado);
 			break;
 			
 		case 5 :
 		
-			printf("Opcion 5 seleccionada \n");
+			printf("Ingrese el ID numerico del empleado que quieres dar de baja el salario: \n");
+			scanf("%d", &idEmpleado);
+			modificar_activo(idEmpleado);
 			break;
 			
 		case 6 :
-		
-			printf("Opcion 6 seleccionada \n");
+			
+			printf("Ingrese el ID numerico del empleado que quieres dar de baja el salario: \n");
 			return 0;
 			
 		default:
@@ -278,7 +342,5 @@ int main(int argc, char* argv[]){
 		
 	}
 	
-	
-
 	return 0;
 }
